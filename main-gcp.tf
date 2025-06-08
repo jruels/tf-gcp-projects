@@ -10,10 +10,16 @@ locals {
 
   # Build students list with normalized names
   students      = [for student in local.raw_students : {
-    name = join("", [
-      lower(substr(split(" ", student.name)[0], 0, 1)),  # First initial
-      lower(split(" ", student.name)[length(split(" ", student.name)) - 1])  # Last name
-    ])
+    name = length(split(" ", student.name)) > 1 ? (
+      # For full names (with spaces), use first initial + last name
+      join("", [
+        lower(substr(split(" ", student.name)[0], 0, 1)),  # First initial
+        lower(split(" ", student.name)[length(split(" ", student.name)) - 1])  # Last name
+      ])
+    ) : (
+      # For single names, just convert to lowercase
+      lower(student.name)
+    )
   }]
 
   student_count = length(local.students)
